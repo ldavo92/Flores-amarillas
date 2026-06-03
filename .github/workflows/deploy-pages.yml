@@ -1,0 +1,51 @@
+name: Deploy MundialGo to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/mundial-go-brief-setup-HNR3k"
+  workflow_dispatch:
+
+# Publica el build a la rama gh-pages (no depende del builder Jekyll de la rama
+# fuente). GitHub Pages debe apuntar a: Deploy from a branch → gh-pages → / (root).
+permissions:
+  contents: write
+
+concurrency:
+  group: "pages-deploy"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Unit tests (Vitest)
+        run: npm run test
+
+      - name: Build (Vite, base=/Flores-amarillas/)
+        run: npm run build
+
+      - name: SPA fallback + disable Jekyll
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
