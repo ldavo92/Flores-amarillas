@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Mascot } from "@/mascots/Mascot";
 import type { Team } from "@/data/teams";
 
@@ -12,27 +14,19 @@ interface Props {
   format?: "story" | "square";
 }
 
-export function ShareCard({
-  team,
-  mascotName,
-  rival,
-  scoreYou,
-  scoreRival,
-  city,
-  predResult,
-  format = "square",
-}: Props) {
+export const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
+  { team, mascotName, rival, scoreYou, scoreRival, city, predResult, format = "square" },
+  ref,
+) {
+  const { t } = useTranslation();
   const aspect = format === "story" ? "aspect-[9/16]" : "aspect-square";
   const won = scoreYou > scoreRival;
   const drew = scoreYou === scoreRival;
-  const headline = won
-    ? "¡SE LO LLEVA!"
-    : drew
-      ? "Empate en pie"
-      : "Un cierre con orgullo";
+  const headline = won ? t("share.takesIt") : drew ? t("share.draw") : t("share.prideClose");
 
   return (
     <div
+      ref={ref}
       className={`relative w-full ${aspect} rounded-2xl overflow-hidden flex flex-col bg-stadium`}
       style={{
         background: `radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, ${team.c[0]} 30%, transparent), transparent 70%), linear-gradient(180deg, var(--night), #060916)`,
@@ -65,20 +59,20 @@ export function ShareCard({
           </span>
         </div>
         <p className="text-center text-sm text-muted">
-          {mascotName} en {city} · vs {rival.name}
+          {mascotName} · {city} · {t("common.vs")} {rival.name}
         </p>
         {predResult && (
           <div className="text-center text-xs uppercase tracking-wider">
             {predResult.exact ? (
-              <span className="text-grass">✓ Pronóstico exacto · +{predResult.points} XP</span>
+              <span className="text-grass">{t("share.exactPred", { points: predResult.points })}</span>
             ) : predResult.correct ? (
-              <span className="text-gold">✓ Acertaste el resultado · +{predResult.points} XP</span>
+              <span className="text-gold">{t("share.correctPred", { points: predResult.points })}</span>
             ) : (
-              <span className="text-muted">Pronóstico fallado · +0 XP</span>
+              <span className="text-muted">{t("share.missPred")}</span>
             )}
           </div>
         )}
       </div>
     </div>
   );
-}
+});

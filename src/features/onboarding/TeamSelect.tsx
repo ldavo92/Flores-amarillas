@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { GROUPS, TEAMS, teamsByGroup, type Team } from "@/data/teams";
 import { Button } from "@/components/Button";
 
 export function TeamSelect() {
   const nav = useNavigate();
+  const { t } = useTranslation();
   const [picked, setPicked] = useState<Team | null>(null);
   const [filter, setFilter] = useState("");
 
   const filtered = filter
-    ? TEAMS.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()))
+    ? TEAMS.filter((team) => team.name.toLowerCase().includes(filter.toLowerCase()))
     : null;
 
   return (
@@ -21,22 +23,28 @@ export function TeamSelect() {
           animate={{ y: 0, opacity: 1 }}
           className="font-display text-3xl mb-2"
         >
-          Elige tu selección
+          {t("select.title")}
         </motion.h2>
-        <p className="text-muted mb-5">Las 48 del Mundial 2026.</p>
+        <p className="text-muted mb-5">{t("select.subtitle")}</p>
 
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Buscar selección…"
+          placeholder={t("select.search")}
+          aria-label={t("select.search")}
           className="w-full mb-6 px-4 py-3 rounded-xl bg-white/[0.05] ring-1 ring-white/10 focus:ring-grass focus:outline-none"
         />
 
         {filtered ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {filtered.map((t) => (
-              <TeamCard key={t.id} team={t} selected={picked?.id === t.id} onPick={setPicked} />
+            {filtered.map((team) => (
+              <TeamCard
+                key={team.id}
+                team={team}
+                selected={picked?.id === team.id}
+                onPick={setPicked}
+              />
             ))}
           </div>
         ) : (
@@ -44,17 +52,19 @@ export function TeamSelect() {
             {GROUPS.map((g) => (
               <section key={g}>
                 <div className="flex items-baseline gap-3 mb-2.5">
-                  <span className="font-display text-2xl">Grupo {g}</span>
+                  <span className="font-display text-2xl">
+                    {t("common.group")} {g}
+                  </span>
                   <span className="text-xs uppercase tracking-widest text-muted">
-                    {teamsByGroup(g).length} selecciones
+                    {t("select.teamsCount", { count: teamsByGroup(g).length })}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {teamsByGroup(g).map((t) => (
+                  {teamsByGroup(g).map((team) => (
                     <TeamCard
-                      key={t.id}
-                      team={t}
-                      selected={picked?.id === t.id}
+                      key={team.id}
+                      team={team}
+                      selected={picked?.id === team.id}
                       onPick={setPicked}
                     />
                   ))}
@@ -78,9 +88,13 @@ export function TeamSelect() {
               <span className="text-3xl">{picked.flag}</span>
               <div className="flex-1 min-w-0">
                 <div className="font-display text-xl truncate">{picked.name}</div>
-                <div className="text-xs text-muted">Grupo {picked.group}</div>
+                <div className="text-xs text-muted">
+                  {t("common.group")} {picked.group}
+                </div>
               </div>
-              <Button onClick={() => nav(`/mascot/${picked.id}`)}>Crear mascota →</Button>
+              <Button onClick={() => nav(`/mascot/${picked.id}`)}>
+                {t("select.createMascot")}
+              </Button>
             </div>
           </motion.div>
         )}
@@ -98,15 +112,14 @@ function TeamCard({
   selected: boolean;
   onPick: (t: Team) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <motion.button
       whileHover={{ y: -3, scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       onClick={() => onPick(team)}
       className={`relative rounded-2xl p-3.5 text-left ring-1 transition-colors ${
-        selected
-          ? "ring-grass bg-grass/15"
-          : "ring-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
+        selected ? "ring-grass bg-grass/15" : "ring-white/10 bg-white/[0.04] hover:bg-white/[0.08]"
       }`}
       style={{
         boxShadow: selected
@@ -119,7 +132,7 @@ function TeamCard({
         <div className="flex-1 min-w-0">
           <div className="font-bold truncate">{team.name}</div>
           <div className="text-[10px] uppercase tracking-widest text-muted">
-            Grupo {team.group}
+            {t("common.group")} {team.group}
           </div>
         </div>
       </div>

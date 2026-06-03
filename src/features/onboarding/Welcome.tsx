@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/Button";
 
 export function Welcome() {
   const nav = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-stadium flex items-center justify-center px-6 py-10">
       <div className="max-w-md w-full text-center">
@@ -29,14 +31,14 @@ export function Welcome() {
           transition={{ delay: 0.3 }}
           className="text-muted text-lg mb-8"
         >
-          Elige tu selección, adopta tu mascota,<br />vive el Mundial 2026 como nunca.
+          {t("welcome.tagline")}
         </motion.p>
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           {[
-            { e: "🦄", t: "Mascota" },
-            { e: "🗺️", t: "16 sedes" },
-            { e: "🔥", t: "En vivo" },
+            { e: "🦄", t: t("welcome.mascot") },
+            { e: "🗺️", t: t("welcome.venues") },
+            { e: "🔥", t: t("welcome.live") },
           ].map((x, i) => (
             <motion.div
               key={x.t}
@@ -57,13 +59,11 @@ export function Welcome() {
           transition={{ delay: 0.9 }}
         >
           <Button size="lg" onClick={() => nav("/select")} className="w-full">
-            ¡Empezar a jugar!
+            {t("welcome.start")}
           </Button>
         </motion.div>
 
-        <p className="mt-6 text-xs text-muted">
-          48 selecciones · 72 partidos · 16 ciudades · sorteo oficial 5-dic-2025
-        </p>
+        <p className="mt-6 text-xs text-muted">{t("welcome.footer")}</p>
       </div>
     </div>
   );

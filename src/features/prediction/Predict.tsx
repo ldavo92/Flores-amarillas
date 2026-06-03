@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useGameStore } from "@/store/useGameStore";
 import { getTeam } from "@/data/teams";
 import { teamSchedule } from "@/data/matches";
@@ -13,6 +14,7 @@ import { Mascot } from "@/mascots/Mascot";
 export function Predict() {
   const { idx } = useParams();
   const nav = useNavigate();
+  const { t, i18n } = useTranslation();
   const teamId = useGameStore((s) => s.teamId);
   const savePrediction = useGameStore((s) => s.savePrediction);
   const predictions = useGameStore((s) => s.predictions);
@@ -31,15 +33,14 @@ export function Predict() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-stadium text-center">
         <div>
-          <p className="text-muted mb-4">Partido no encontrado.</p>
-          <Button onClick={() => nav("/hub")}>Volver</Button>
+          <p className="text-muted mb-4">{t("predict.notFound")}</p>
+          <Button onClick={() => nav("/hub")}>{t("common.back")}</Button>
         </div>
       </div>
     );
   }
 
   const onSave = () => {
-    // ph siempre como "tu equipo" en el store; en motor real se mapea según home/away
     savePrediction(match.iso, you, riv);
     nav(`/match/${i}`);
   };
@@ -47,26 +48,19 @@ export function Predict() {
   return (
     <div className="min-h-screen bg-stadium px-4 py-6 pb-24">
       <div className="max-w-md mx-auto">
-        <button
-          onClick={() => nav("/hub")}
-          className="text-muted text-sm mb-4 hover:text-white"
-        >
-          ← Volver
+        <button onClick={() => nav("/hub")} className="text-muted text-sm mb-4 hover:text-ink">
+          ← {t("common.back")}
         </button>
 
         <Card>
           <div className="text-center mb-4">
-            <Chip color={team.c[1]}>Pronóstico de marcador</Chip>
+            <Chip color={team.c[1]}>{t("predict.title")}</Chip>
             <h2 className="font-display text-2xl mt-2">{match.city}</h2>
             <p className="text-xs text-muted">{match.st}</p>
-            <p className="text-xs text-muted">{fmt(match.iso)}</p>
+            <p className="text-xs text-muted">{fmt(match.iso, i18n.language)}</p>
           </div>
 
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="flex justify-center mb-3"
-          >
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex justify-center mb-3">
             <Mascot team={team} mood="confident" size={140} />
           </motion.div>
 
@@ -74,38 +68,28 @@ export function Predict() {
             <div className="text-center">
               <div className="text-4xl mb-1">{team.flag}</div>
               <div className="text-xs uppercase tracking-widest text-muted mb-2">
-                {isHome ? "Local" : "Visitante"}
+                {isHome ? t("predict.home") : t("predict.away")}
               </div>
-              <StepperInput
-                value={you}
-                onChange={setYou}
-                color={team.c[0]}
-                label="Tu equipo"
-              />
+              <StepperInput value={you} onChange={setYou} color={team.c[0]} label={t("predict.yourTeam")} />
             </div>
             <div className="text-3xl text-muted">–</div>
             <div className="text-center">
               <div className="text-4xl mb-1">{rival.flag}</div>
               <div className="text-xs uppercase tracking-widest text-muted mb-2">
-                {isHome ? "Visitante" : "Local"}
+                {isHome ? t("predict.away") : t("predict.home")}
               </div>
-              <StepperInput
-                value={riv}
-                onChange={setRiv}
-                color={rival.c[0]}
-                label="Rival"
-              />
+              <StepperInput value={riv} onChange={setRiv} color={rival.c[0]} label={t("predict.rival")} />
             </div>
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 my-4">
-            <Chip color="#16e07a">Exacto · +50 XP</Chip>
-            <Chip color="#ffd24a">Resultado · +20 XP</Chip>
-            <Chip>Fallido · +0 XP</Chip>
+            <Chip color="#16e07a">{t("predict.exact")}</Chip>
+            <Chip color="#ffd24a">{t("predict.result")}</Chip>
+            <Chip>{t("predict.miss")}</Chip>
           </div>
 
           <Button size="lg" className="w-full" onClick={onSave}>
-            Guardar y ver partido →
+            {t("predict.saveCta")}
           </Button>
         </Card>
       </div>
@@ -113,8 +97,9 @@ export function Predict() {
   );
 }
 
-function fmt(iso: string): string {
-  return new Date(iso).toLocaleString("es-MX", {
+function fmt(iso: string, lang: string): string {
+  const locale = lang === "en" ? "en-US" : lang === "pt" ? "pt-BR" : "es-MX";
+  return new Date(iso).toLocaleString(locale, {
     weekday: "short",
     day: "numeric",
     month: "short",

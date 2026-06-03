@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { getTeam } from "@/data/teams";
 import { teamSchedule } from "@/data/matches";
 import { useGameStore, scorePrediction } from "@/store/useGameStore";
@@ -46,6 +48,8 @@ const SIM_INTERVAL_MS = 380;
 export function LiveMatch() {
   const { idx } = useParams();
   const nav = useNavigate();
+  const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const i = parseInt(idx ?? "0", 10);
   const teamId = useGameStore((s) => s.teamId);
   const team = teamId ? getTeam(teamId) : null;
@@ -182,17 +186,17 @@ export function LiveMatch() {
     const id = eventIdRef.current;
     if (side === "home") setScoreH((n) => n + 1);
     else setScoreA((n) => n + 1);
-    const teamName = side === "home" ? home?.name : away?.name;
+    const teamName = (side === "home" ? home?.name : away?.name) ?? "";
     const ev: LiveEvent = {
       id,
       type: side === "home" ? "goal-home" : "goal-away",
       minute: min,
       team: side,
-      text: `¡GOL de ${teamName}!`,
+      text: t("live.goal", { team: teamName }),
     };
     setEvents((prev) => [ev, ...prev].slice(0, 30));
     setGoalFlash(side);
-    setShake(true);
+    if (!reduced) setShake(true);
     if (audioOn) playGoalHorn();
     if (hapticsOn) vibrate([40, 60, 40, 60, 80]);
     window.setTimeout(() => {
@@ -204,13 +208,13 @@ export function LiveMatch() {
   function pushCard(kind: "yellow" | "red", min: number) {
     const side: "home" | "away" = Math.random() > 0.5 ? "home" : "away";
     eventIdRef.current += 1;
-    const teamName = side === "home" ? home?.name : away?.name;
+    const teamName = (side === "home" ? home?.name : away?.name) ?? "";
     const ev: LiveEvent = {
       id: eventIdRef.current,
       type: kind,
       minute: min,
       team: side,
-      text: `Tarjeta ${kind === "yellow" ? "amarilla" : "ROJA"} · ${teamName}`,
+      text: kind === "yellow" ? t("live.yellowCard", { team: teamName }) : t("live.redCard", { team: teamName }),
     };
     setEvents((prev) => [ev, ...prev].slice(0, 30));
   }
@@ -221,7 +225,7 @@ export function LiveMatch() {
     stopStadiumRoar();
     eventIdRef.current += 1;
     setEvents((prev) => [
-      { id: eventIdRef.current, type: "full-time", minute: 90, team: "home", text: "Final del partido" },
+      { id: eventIdRef.current, type: "full-time", minute: 90, team: "home", text: t("live.fullTime") },
       ...prev,
     ]);
 
@@ -255,7 +259,7 @@ export function LiveMatch() {
     lastComboTapRef.current = now;
     if (audioOn) playThud();
     if (hapticsOn) vibrate(10);
-    if (!lowDataMode) {
+    if (!reduced) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -286,10 +290,10 @@ export function LiveMatch() {
     terremoto: "#ef4757",
   };
   const tempLabel: Record<SupportTemp, string> = {
-    tibio: "TIBIO",
-    caliente: "CALIENTE",
-    "en-llamas": "EN LLAMAS 🔥",
-    terremoto: "TERREMOTO 🌋",
+    tibio: t("live.tempTibio"),
+    caliente: t("live.tempCaliente"),
+    "en-llamas": t("live.tempLlamas"),
+    terremoto: t("live.tempTerremoto"),
   };
 
   // Para mostrar el mood derivado de marcador
@@ -306,18 +310,18 @@ export function LiveMatch() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-stadium text-center">
         <div>
-          <p className="text-muted mb-4">Partido no encontrado.</p>
-          <Button onClick={() => nav("/hub")}>Volver</Button>
+          <p className="text-muted mb-4">{t("predict.notFound")}</p>
+          <Button onClick={() => nav("/hub")}>{t("common.back")}</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`relative min-h-screen bg-pitch overflow-hidden ${shake ? "live-shake" : ""}`}>
+    <div className={`relative min-h-screen bg-pitch overflow-hidden ${shake && !reduced ? "live-shake" : ""}`}>
       {/* Flash dorado/rojo en gol */}
       <AnimatePresence>
-        {goalFlash && (
+        {goalFlash && !reduced && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 0.55, 0] }}
@@ -335,7 +339,7 @@ export function LiveMatch() {
       </AnimatePresence>
 
       <Confetti
-        active={(goalFlash === "home" && isHome) || (goalFlash === "away" && !isHome)}
+        active={!reduced && ((goalFlash === "home" && isHome) || (goalFlash === "away" && !isHome))}
         count={70}
         colors={team.c as unknown as string[]}
       />
@@ -349,13 +353,13 @@ export function LiveMatch() {
           }}
           className="text-muted text-xs mb-2"
         >
-          ← Salir
+          ← {t("live.exit")}
         </button>
         <div className="flex items-center gap-2 mb-2">
           <Chip color={running ? "#ef4757" : "#9ba6c2"}>
-            {finished ? "FT" : running ? `${Math.floor(minute)}'` : "Pre-partido"}
+            {finished ? "FT" : running ? `${Math.floor(minute)}'` : t("live.prematch")}
           </Chip>
-          <Chip color="#9ba6c2">casi en vivo</Chip>
+          <Chip color="#9ba6c2">{t("live.almostLive")}</Chip>
           <span className="text-xs text-muted">{match.city} · {match.st}</span>
         </div>
 
@@ -381,20 +385,20 @@ export function LiveMatch() {
 
       {/* Mascot center */}
       <div className="relative z-10 flex flex-col items-center pt-6">
-        <Mascot team={team} mood={mood} size={lowDataMode ? 150 : 200} />
+        <Mascot team={team} mood={mood} size={lowDataMode ? 150 : 200} bob={!reduced} />
         <div className="mt-2 text-center">
           <p className="font-display text-xl">
             {finished
               ? mood === "euphoric"
-                ? "¡VICTORIA!"
+                ? t("live.victory")
                 : mood === "sad"
-                  ? "Cabeza alta"
-                  : "Empate digno"
+                  ? t("live.headUp")
+                  : t("live.draw")
               : mood === "euphoric"
-                ? "¡Aguanten así!"
+                ? t("live.holdOn")
                 : mood === "sad"
-                  ? "¡Vamos! aún hay tiempo"
-                  : "¡A apoyar!"}
+                  ? t("live.comeback")
+                  : t("live.support")}
           </p>
         </div>
       </div>
@@ -402,11 +406,11 @@ export function LiveMatch() {
       {/* Crowd presence */}
       <div className="relative z-10 mt-3 px-4 max-w-md mx-auto grid grid-cols-2 gap-2 text-center">
         <div className="rounded-xl bg-white/[0.04] ring-1 ring-white/10 p-2">
-          <div className="text-[10px] uppercase tracking-widest text-muted">Hinchas de {team.name}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted">{t("live.fansOf", { team: team.name })}</div>
           <div className="font-display text-xl" style={{ color: team.c[0] }}>{fansYou}</div>
         </div>
         <div className="rounded-xl bg-white/[0.04] ring-1 ring-white/10 p-2">
-          <div className="text-[10px] uppercase tracking-widest text-muted">Hinchas de {rival.name}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted">{t("live.fansOf", { team: rival.name })}</div>
           <div className="font-display text-xl" style={{ color: rival.c[0] }}>{fansRival}</div>
         </div>
       </div>
@@ -460,7 +464,7 @@ export function LiveMatch() {
                 startMatch();
               }}
             >
-              ▶ Iniciar partido (simulado)
+              {t("live.start")}
             </Button>
           ) : finished ? (
             <Button
@@ -469,7 +473,7 @@ export function LiveMatch() {
               variant="gold"
               onClick={() => nav(`/result/${i}`)}
             >
-              Ver resultado →
+              {t("live.seeResult")}
             </Button>
           ) : (
             <motion.button
@@ -480,9 +484,9 @@ export function LiveMatch() {
                 background: `linear-gradient(135deg, ${team.c[0]}, ${team.c[1]})`,
                 boxShadow: `0 0 ${20 + support / 2}px color-mix(in srgb, ${team.c[0]} ${40 + support / 2}%, transparent)`,
               }}
-              aria-label="Toca para apoyar a tu equipo"
+              aria-label={t("live.support")}
             >
-              👏 TOCA PARA APOYAR 👏
+              {t("live.tap")}
               <AnimatePresence>
                 {particles.map((p) => (
                   <motion.span

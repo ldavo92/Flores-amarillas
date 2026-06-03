@@ -13,7 +13,7 @@ const VARIANTS: Record<Variant, string> = {
   primary:
     "bg-[color:var(--team-1)] text-black hover:brightness-110 shadow-[0_8px_24px_color-mix(in_srgb,var(--team-1)_40%,transparent)]",
   ghost:
-    "bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/10",
+    "bg-white/5 text-ink ring-1 ring-white/15 hover:bg-white/10",
   gold:
     "bg-gold text-black hover:brightness-110 shadow-[0_8px_24px_rgba(255,210,74,0.35)]",
   danger:

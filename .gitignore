@@ -13,3 +13,4 @@ dist-ssr
 coverage
 tsconfig.tsbuildinfo
 verify-*.mjs
+gen-icons.mjs

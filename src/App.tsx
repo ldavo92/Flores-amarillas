@@ -10,6 +10,11 @@ import { LiveMatch } from "@/features/live/LiveMatch";
 import { Result } from "@/features/result/Result";
 import { Groups } from "@/features/groups/Groups";
 import { Album } from "@/features/album/Album";
+import { Bracket } from "@/features/bracket/Bracket";
+import { Settings } from "@/features/settings/Settings";
+import { Eliminated } from "@/features/eliminated/Eliminated";
+import { Achievements } from "@/features/achievements/Achievements";
+import { AppShell } from "@/components/BottomNav";
 import { useGameStore } from "@/store/useGameStore";
 import { getTeam } from "@/data/teams";
 import { applyTeamColorsGlobal } from "@/lib/teamColors";
@@ -26,15 +31,23 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Flujos full-screen (sin barra inferior) */}
         <Route path="/" element={<Welcome />} />
         <Route path="/select" element={<TeamSelect />} />
         <Route path="/mascot/:teamId" element={<MascotReveal />} />
-        <Route path="/hub" element={<Hub />} />
         <Route path="/predict/:idx" element={<Predict />} />
         <Route path="/match/:idx" element={<LiveMatch />} />
         <Route path="/result/:idx" element={<Result />} />
-        <Route path="/groups" element={<Groups />} />
-        <Route path="/album" element={<Album />} />
+        <Route path="/eliminated" element={<Eliminated />} />
+
+        {/* Pantallas internas con navegación inferior */}
+        <Route path="/hub" element={<AppShell><Hub /></AppShell>} />
+        <Route path="/groups" element={<AppShell><Groups /></AppShell>} />
+        <Route path="/bracket" element={<AppShell><Bracket /></AppShell>} />
+        <Route path="/album" element={<AppShell><Album /></AppShell>} />
+        <Route path="/achievements" element={<AppShell><Achievements /></AppShell>} />
+        <Route path="/settings" element={<AppShell><Settings /></AppShell>} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
