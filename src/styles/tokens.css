@@ -1,0 +1,123 @@
+/* MundialGo design tokens — §6 del brief */
+:root {
+  /* Identity */
+  --night: #0a0f1f;
+  --night-2: #131a30;
+  --grass: #16e07a;
+  --grass-deep: #0fa85a;
+  --gold: #ffd24a;
+  --gold-deep: #f5a623;
+  --ink: #f7f9ff;
+  --muted: #9ba6c2;
+  --line: rgba(255, 255, 255, 0.08);
+
+  /* Team accents (overridden at runtime via inline style) */
+  --team-1: #16e07a;
+  --team-2: #ffd24a;
+  --team-3: #ffffff;
+
+  /* Hype meter (live energy 0-1) */
+  --hype: 0;
+
+  /* Shape & motion */
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow: 0 18px 50px rgba(2, 6, 12, 0.55);
+  --tap-area: 48px;
+}
+
+/* Light theme override (toggle via <html data-theme="light">) */
+:root[data-theme="light"] {
+  --night: #f4f6fb;
+  --night-2: #ffffff;
+  --ink: #0a0f1f;
+  --muted: #5a6580;
+  --line: rgba(10, 15, 31, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--night);
+  color: var(--ink);
+  font-family: "Outfit", "DM Sans", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Stadium background */
+.bg-stadium {
+  background:
+    radial-gradient(900px 480px at 20% 10%, color-mix(in srgb, var(--team-1) 18%, transparent), transparent 60%),
+    radial-gradient(700px 420px at 80% 90%, color-mix(in srgb, var(--team-2) 12%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--night) 0%, var(--night-2) 100%);
+}
+
+/* Pitch (live) tinting with hype */
+.bg-pitch {
+  background:
+    radial-gradient(600px 360px at 50% 50%, color-mix(in srgb, var(--team-1) calc(var(--hype) * 35%), transparent), transparent 70%),
+    radial-gradient(80% 100% at 50% 100%, var(--grass-deep), var(--night) 70%);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Live shake */
+.live-shake {
+  animation: live-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes live-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(3px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(2px, 0); }
+}
+
+/* Confetti pieces */
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
