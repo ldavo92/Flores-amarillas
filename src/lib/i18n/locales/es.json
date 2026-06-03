@@ -148,6 +148,15 @@
     "pickCta": "Elegir campeón",
     "note": "Los rivales reales se completan cuando lleguen los resultados oficiales."
   },
+  "path": {
+    "title": "Tu camino al título",
+    "play": "¡JUGAR!",
+    "champion": "Campeón",
+    "groupStage": "Fase de grupos",
+    "locked": "Gana el partido anterior para avanzar",
+    "tbdHint": "Se desbloquea con los resultados reales",
+    "done": "Jugado"
+  },
   "eliminated": {
     "title": "Tu Mundial terminó",
     "subtitle": "{{mascot}} se va a casa con la frente en alto.",

@@ -28,6 +28,7 @@ interface GameState {
   streak: number;
   unlocked: string[]; // ids de mascotas desbloqueadas (álbum)
   predictions: Record<string, { ph: number; pa: number; points?: number }>;
+  matchResults: Record<string, { you: number; rival: number }>; // por iso de partido
   achievements: string[]; // ids de logros desbloqueados
   adoptedTeamId: string | null;
   championPick: string | null;
@@ -46,6 +47,7 @@ interface GameState {
   unlock: (id: string) => void;
   savePrediction: (matchKey: string, ph: number, pa: number) => void;
   resolvePrediction: (matchKey: string, points: number) => void;
+  recordMatchResult: (matchKey: string, you: number, rival: number) => void;
   unlockAchievement: (id: string) => void;
   adoptTeam: (id: string) => void;
   pickChampion: (id: string) => void;
@@ -72,6 +74,7 @@ export const useGameStore = create<GameState>()(
       streak: 0,
       unlocked: [],
       predictions: {},
+      matchResults: {},
       achievements: [],
       adoptedTeamId: null,
       championPick: null,
@@ -143,6 +146,11 @@ export const useGameStore = create<GameState>()(
           };
         }),
 
+      recordMatchResult: (matchKey, you, rival) =>
+        set((s) => ({
+          matchResults: { ...s.matchResults, [matchKey]: { you, rival } },
+        })),
+
       unlockAchievement: (id) =>
         set((s) =>
           s.achievements.includes(id) ? s : { achievements: [...s.achievements, id] },
@@ -193,6 +201,7 @@ export const useGameStore = create<GameState>()(
           streak: 0,
           unlocked: [],
           predictions: {},
+          matchResults: {},
           achievements: [],
           adoptedTeamId: null,
           championPick: null,

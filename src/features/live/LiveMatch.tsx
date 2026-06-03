@@ -68,6 +68,7 @@ export function LiveMatch() {
   const setStatus = useGameStore((s) => s.setStatus);
   const predictions = useGameStore((s) => s.predictions);
   const resolvePrediction = useGameStore((s) => s.resolvePrediction);
+  const recordMatchResult = useGameStore((s) => s.recordMatchResult);
 
   // Estado del partido
   const [minute, setMinute] = useState(0);
@@ -233,6 +234,7 @@ export function LiveMatch() {
       // Resolver pronóstico
       const youScore = isHome ? scoreH : scoreA;
       const rivScore = isHome ? scoreA : scoreH;
+      if (match) recordMatchResult(match.iso, youScore, rivScore);
       const pred = match ? predictions[match.iso] : undefined;
       if (pred && match) {
         const pts = scorePrediction({ ph: pred.ph, pa: pred.pa }, { ph: youScore, pa: rivScore });

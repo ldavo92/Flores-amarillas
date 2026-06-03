@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Chip } from "@/components/Chip";
 import { JourneyMap } from "@/features/map/JourneyMap";
+import { JourneyPath } from "@/features/map/JourneyPath";
 import { useGameStore, CHECKIN_XP, todayKey } from "@/store/useGameStore";
 import { applyTeamColorsGlobal } from "@/lib/teamColors";
 
@@ -156,13 +157,23 @@ export function Hub() {
           </Card>
         )}
 
-        {/* Mapa-viaje */}
+        {/* Camino estilo Duolingo (protagonista) */}
         <Card delay={0.2}>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs uppercase tracking-widest text-muted">
+              {t("path.title")}
+            </span>
+            <Chip color={team.c[0]}>{t("hub.matchesCount", { count: schedule.length })}</Chip>
+          </div>
+          <JourneyPath team={team} />
+        </Card>
+
+        {/* Mapa de sedes (geográfico, secundario) */}
+        <Card delay={0.25}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs uppercase tracking-widest text-muted">
               {t("hub.yourPath")}
             </span>
-            <Chip color={team.c[0]}>{t("hub.matchesCount", { count: schedule.length })}</Chip>
           </div>
           <JourneyMap teamId={team.id} schedule={schedule} currentMatchIdx={currentMatchIdx} />
         </Card>

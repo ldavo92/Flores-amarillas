@@ -148,6 +148,15 @@
     "pickCta": "Pick champion",
     "note": "Real opponents fill in as official results arrive."
   },
+  "path": {
+    "title": "Your road to the title",
+    "play": "PLAY!",
+    "champion": "Champion",
+    "groupStage": "Group stage",
+    "locked": "Win the previous match to advance",
+    "tbdHint": "Unlocks with real results",
+    "done": "Played"
+  },
   "eliminated": {
     "title": "Your World Cup is over",
     "subtitle": "{{mascot}} heads home with head held high.",

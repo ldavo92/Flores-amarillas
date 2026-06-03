@@ -148,6 +148,15 @@
     "pickCta": "Escolher campeão",
     "note": "Os rivais reais aparecem conforme os resultados oficiais chegam."
   },
+  "path": {
+    "title": "Seu caminho ao título",
+    "play": "JOGAR!",
+    "champion": "Campeão",
+    "groupStage": "Fase de grupos",
+    "locked": "Vença o jogo anterior para avançar",
+    "tbdHint": "Desbloqueia com os resultados reais",
+    "done": "Jogado"
+  },
   "eliminated": {
     "title": "Sua Copa acabou",
     "subtitle": "{{mascot}} vai para casa de cabeça erguida.",
