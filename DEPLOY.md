@@ -37,6 +37,22 @@ Pasos:
 2. Agrega las variables de entorno `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 3. Deploy. Build command: `npm run build`, output: `dist`.
 
+### Deploy a Vercel desde la terminal
+
+Si prefieres desplegar sin conectar el repo en el dashboard, usa el script
+incluido (requiere un token de https://vercel.com/account/tokens):
+
+```bash
+export VERCEL_TOKEN="vcp_..."   # tu token de Vercel
+./scripts/deploy-vercel.sh            # deploy a producción
+./scripts/deploy-vercel.sh --preview  # deploy de preview
+```
+
+El script toma las claves de Supabase desde tu `.env` local (o desde las
+variables de entorno actuales) y las sincroniza con el proyecto de Vercel
+antes de desplegar. Usa la CLI de Vercel instalada globalmente, o cae a
+`npx vercel` si no la tienes.
+
 ## Rutas
 
 | Ruta | Uso |
