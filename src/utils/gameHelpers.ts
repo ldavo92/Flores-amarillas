@@ -1,4 +1,7 @@
 import type { GameState, Player } from "../types/game";
+import { createId } from "./createId";
+import { shuffle } from "./shuffle";
+import { QUESTIONS } from "../data/questions";
 
 export const MAX_PLAYERS = 10;
 export const MIN_PLAYERS = 2;
@@ -29,6 +32,31 @@ export function createInitialState(timerSeconds = DEFAULT_TIMER): GameState {
     pending: null,
     lastShazam: null,
     lastLifesaver: null,
+  };
+}
+
+export function createDemoState(): GameState {
+  const base = createInitialState(DEFAULT_TIMER);
+  const players: Player[] = ["Ana", "Beto", "Carla", "Diego"].map((name) => ({
+    id: createId(),
+    name,
+    isAlive: true,
+    usedLifesaver: false,
+    usedShazam: false,
+    shield: false,
+    eliminatedAt: null,
+  }));
+  const queue = shuffle(players.map((p) => p.id));
+  return {
+    ...base,
+    screen: "playing",
+    players,
+    activeQueue: queue,
+    currentPlayerId: queue[0] ?? null,
+    currentQuestion: QUESTIONS[0],
+    usedQuestions: [QUESTIONS[0]],
+    lastEvent: "Demo iniciada 🎮",
+    gameLog: [{ id: createId(), text: "Demo iniciada 🎮", createdAt: Date.now() }],
   };
 }
 

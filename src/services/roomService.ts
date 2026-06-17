@@ -1,10 +1,19 @@
-import { supabase } from "../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { GameState, RoomRow } from "../types/game";
 import { createRoomCode, createToken } from "../utils/createId";
+import {
+  createRoomLocal,
+  getRoomLocal,
+  updateRoomStateLocal,
+  joinRoomStateLocal,
+  subscribeToRoomLocal,
+} from "./localRoomService";
 
 export async function createRoom(
   initialState: GameState
 ): Promise<{ code: string; hostToken: string; room: RoomRow }> {
+  if (!isSupabaseConfigured) return createRoomLocal(initialState);
+
   const hostToken = createToken();
 
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -27,6 +36,8 @@ export async function createRoom(
 }
 
 export async function getRoom(code: string): Promise<RoomRow | null> {
+  if (!isSupabaseConfigured) return getRoomLocal(code);
+
   const { data, error } = await supabase
     .from("rooms")
     .select("*")
@@ -42,6 +53,8 @@ export async function updateRoomState(
   hostToken: string,
   nextState: GameState
 ): Promise<void> {
+  if (!isSupabaseConfigured) return updateRoomStateLocal(code, hostToken, nextState);
+
   const { error } = await supabase
     .from("rooms")
     .update({ game_state: nextState })
@@ -52,10 +65,9 @@ export async function updateRoomState(
 }
 
 /** Used by the optional /join view: append a player without the host token. */
-export async function joinRoomState(
-  code: string,
-  nextState: GameState
-): Promise<void> {
+export async function joinRoomState(code: string, nextState: GameState): Promise<void> {
+  if (!isSupabaseConfigured) return joinRoomStateLocal(code, nextState);
+
   const { error } = await supabase
     .from("rooms")
     .update({ game_state: nextState })
@@ -69,6 +81,8 @@ export function subscribeToRoom(
   onState: (state: GameState) => void,
   onStatus?: (status: "connected" | "disconnected") => void
 ): () => void {
+  if (!isSupabaseConfigured) return subscribeToRoomLocal(code, onState, onStatus);
+
   const channel = supabase
     .channel(`room:${code}`)
     .on(

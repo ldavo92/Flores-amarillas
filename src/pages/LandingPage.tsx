@@ -5,7 +5,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import { useGameStore } from "../store/useGameStore";
 import { createRoom } from "../services/roomService";
-import { createInitialState } from "../utils/gameHelpers";
+import { createInitialState, createDemoState } from "../utils/gameHelpers";
 import { getHostToken, getPrefs, savePrefs, saveHostToken } from "../utils/storage";
 import { isSupabaseConfigured } from "../lib/supabase";
 
@@ -33,6 +33,24 @@ export default function LandingPage() {
     }
   };
 
+  const handleDemo = async () => {
+    setError(null);
+    setCreating(true);
+    try {
+      const initial = createDemoState();
+      const { code: roomCode, hostToken } = await createRoom(initial);
+      saveHostToken(roomCode, hostToken);
+      savePrefs({ lastRoom: roomCode });
+      setRoom({ code: roomCode, hostToken, isHost: true, state: initial });
+      window.open(`/screen/${roomCode}`, "_blank", "noopener");
+      navigate(`/host/${roomCode}`);
+    } catch {
+      setError("No se pudo iniciar el demo.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleOpen = () => {
     const c = code.trim().toUpperCase();
     if (c.length < 4) return setError("Código inválido.");
@@ -54,13 +72,25 @@ export default function LandingPage() {
         </p>
 
         {!isSupabaseConfigured && (
-          <div className="mt-6 w-full rounded-xl border border-amber-500/50 bg-amber-500/10 p-3 text-sm text-amber-200">
-            ⚠️ Falta configurar <code>.env</code> con las claves de Supabase.
+          <div className="mt-6 w-full rounded-xl border border-cyan-500/40 bg-cyan-500/10 p-3 text-sm text-cyan-100">
+            🧪 <b>Modo demo local</b> activo. El juego sincroniza entre pestañas del mismo
+            navegador. Para usarlo entre dispositivos (celular + laptop), agrega las claves de
+            Supabase en <code>.env</code>.
           </div>
         )}
 
         <Card className="mt-8 w-full">
-          <Button block size="xl" variant="primary" onClick={handleCreate} disabled={creating}>
+          <Button block size="xl" variant="success" onClick={handleDemo} disabled={creating}>
+            {creating ? "Cargando…" : "🧪 Ver demo (abre 2 pestañas)"}
+          </Button>
+          <Button
+            block
+            size="xl"
+            variant="primary"
+            className="mt-3"
+            onClick={handleCreate}
+            disabled={creating}
+          >
             {creating ? "Creando…" : "🎮 Crear nueva sala"}
           </Button>
           {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
