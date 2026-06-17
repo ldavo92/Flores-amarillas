@@ -18,8 +18,15 @@ export default function HostRoomHeader({ code }: { code: string }) {
           <p className="text-xs uppercase tracking-widest text-slate-400">Sala</p>
           <p className="font-display text-3xl font-black tracking-widest text-cyan-300">{code}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ConnectionPill connection={connection} />
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => window.open(buildScreenUrl(code), "_blank", "noopener")}
+          >
+            ▶ Abrir pantalla
+          </Button>
           <Button size="sm" variant="ghost" onClick={() => setShowLinks((v) => !v)}>
             {showLinks ? "Ocultar" : "Compartir"}
           </Button>
