@@ -35,7 +35,23 @@ Pasos:
 
 1. Conecta el repo de GitHub en Vercel o Netlify.
 2. Agrega las variables de entorno `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
-3. Deploy. Build command: `npm run build`, output: `dist`.
+3. Deploy. Build command: `npm run build` (`vite build`), output: `dist`.
+
+### Deploy por CLI a un proyecto Vercel existente
+
+Hay un script que automatiza el deploy usando un token scoped al proyecto
+(`vcp_...`). Obtiene el `ORG_ID` desde la API, vincula el proyecto y publica:
+
+```bash
+export VERCEL_TOKEN="vcp_xxx"          # token de Vercel
+./scripts/deploy-vercel.sh             # producción
+./scripts/deploy-vercel.sh --preview   # preview
+```
+
+> Requiere salida de red hacia `*.vercel.com`. En Claude Code on the web esto
+> implica poner el entorno en **Network access: Custom** y añadir `*.vercel.com`.
+> El `VERCEL_PROJECT_ID` por defecto es el de este repo (editable en el script
+> o vía la variable de entorno del mismo nombre).
 
 ## Rutas
 
